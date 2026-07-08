@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[POST TITLE]</title>
+
+<style>
+body {
+    max-width: 80ch;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    background: #f5f0d8;
+    color: #111;
+    font-family: "Courier New", monospace;
+    line-height: 1.6;
+}
+
+a {
+    color: #0033aa;
+}
+
+pre {
+    overflow-x: auto;
+    padding: 1rem;
+    background: #ece6c8;
+    border: 1px solid #999;
+}
+
+hr {
+    border: 0;
+    border-top: 1px dashed #666;
+}
+
+.header,
+.footer {
+    color: #444;
+    font-size: 0.95rem;
+}
+
+.title {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.statusline {
+    margin-top: 2rem;
+    padding: 0.3rem;
+    background: #222;
+    color: #eee;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+blockquote {
+    border-left: 3px solid #666;
+    margin-left: 0;
+    padding-left: 1rem;
+    color: #444;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+========================================================================<br>
+File: /home/user/blog/posts/t14s.html<br>
+Date: YYYY-MM-DD HH:MM UTC<br>
+Host: openbsd.example.org<br>
+========================================================================
+</div>
+
+<h1 class="title">OpenBSD 7.9 on Thinkpad T14s Gen 4 (AMD)</h1>
+
+<p>
+In this blog post I will guide through the installation and setup of OpenBSD 7.9 on
+the Thinkpad T14s Gen 4 (AMD).
+</p>
+
+<hr>
+
+<h2>Background</h2>
+
+<p>
+Describe the context. Mention hardware, software versions, assumptions,
+or constraints. Avoid unnecessary hype.
+</p>
+
+<blockquote>
+Software ages. Good documentation ages more slowly.
+</blockquote>
+
+<h2>Notes</h2>
+
+<p>
+Present findings in plain language. Prefer examples over abstractions.
+</p>
+
+<pre>
+$ uname -a
+OpenBSD hostname 7.8 GENERIC amd64
+
+$ vim notes.txt
+
+$ make
+$ doas make install
+</pre>
+
+<h2 id="current-openbsd-support-summary">Current OpenBSD Support Summary</h2>
+<p>Hardware probe can be found under (https://bsd-hardware.info/?probe=effbe64ab7)</p>
+<p>Status is relative to OpenBSD 7.9-release as of 2026-06-17.</p>
+<table>
+    <thead>
+        <tr>
+            <th>Component</th>
+            <th>Works?</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Audio</td>
+            <td>Yes</td>
+            <td>Radeon Audio supported by <a href="http://man.openbsd.org/azalia.4"><code>azalia</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fazalia.4" title="Archive" class="archive"></a>. Microphone can be disabled in the BIOS.</td>
+        </tr>
+        <tr>
+            <td>Battery status</td>
+            <td>Yes</td>
+            <td>48Whr battery, status available through <a href="http://man.openbsd.org/acpibat.4"><code>acpibat</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Facpibat.4" title="Archive" class="archive"></a>.</td>
+        </tr>
+        <tr>
+            <td>Bluetooth</td>
+            <td>No</td>
+            <td>Attaches as a <a href="http://man.openbsd.org/ugen.4"><code>ugen</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fugen.4" title="Archive" class="archive"></a> device, but OpenBSD does not support Bluetooth. Can be disabled in the BIOS.</td>
+        </tr>
+        <tr>
+            <td>Fingerprint sensor</td>
+            <td>No</td>
+            <td>Synaptics <code>00bd</code> via USB, <a href="https://www.reddit.com/r/thinkpad/comments/e90cgp/p43s_working_fingerprint_reader_on_linux/">might be supported by libfprint</a><a href="//web.archive.org/web/20240625000000/https%3A%2F%2Fwww.reddit.com%2Fr%2Fthinkpad%2Fcomments%2Fe90cgp%2Fp43s_working_fingerprint_reader_on_linux%2F" title="Archive" class="archive"></a> with some extra firmware. Can be disabled in the BIOS.</td>
+        </tr>
+        <tr>
+            <td>Keyboard backlight</td>
+            <td>Yes</td>
+            <td>Supported natively by the EC.  Can be toggled with Fn+Space and with <code>wsconsctl keyboard.backlight</code> values of <code>0</code>, <code>50</code>, and <code>100</code>.</td>
+        </tr>
+        <tr>
+            <td>Hibernation</td>
+            <td>Yes</td>
+            <td>Can be triggered by <a href="http://man.openbsd.org/ZZZ.8"><code>ZZZ</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2FZZZ.8" title="Archive" class="archive"></a>.</td>
+        </tr>
+        <tr>
+            <td>SSD</td>
+            <td>Yes</td>
+            <td>The <del>Western Digital PC SN530</del> SanDisk PC SN740 NVMe drive is supported by <a href="http://man.openbsd.org/nvme.4"><code>nvme</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fnvme.4" title="Archive" class="archive"></a>.</td>
+        </tr>
+        <tr>
+            <td>Suspend / resume</td>
+            <td>Yes</td>
+            <td>ACPI S3 suspend support requires a BIOS update and the S3 Sleep option set to "Linux".</td>
+        </tr>
+        <tr>
+            <td>Thunderbolt 3</td>
+            <td>Yes</td>
+            <td>Thunderbolt <code>ppb</code> bridges magically appear when devices are plugged in; tested with <a href="https://man.openbsd.org/nvme.4"><code>nvme</code></a><a href="//web.archive.org/web/20240625000000/https%3A%2F%2Fman.openbsd.org%2Fnvme.4" title="Archive" class="archive"></a> and <a href="https://man.openbsd.org/bge.4"><code>bge</code></a><a href="//web.archive.org/web/20240625000000/https%3A%2F%2Fman.openbsd.org%2Fbge.4" title="Archive" class="archive"></a>.</td>
+        </tr>
+        <tr>
+            <td>Touchpad</td>
+            <td>Yes</td>
+            <td>Elan I<sup>2</sup>C, supported by <a href="http://man.openbsd.org/imt.4"><code>imt</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fimt.4" title="Archive" class="archive"></a>.</td>
+        </tr>
+        <tr>
+            <td>TrackPoint</td>
+            <td>Yes</td>
+            <td>Supported by <a href="http://man.openbsd.org/pms.4"><code>pms</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fpms.4" title="Archive" class="archive"></a>.</td>
+        </tr>
+        <tr>
+            <td>USB</td>
+            <td>Yes</td>
+            <td>The 2 USB-C ports work fine.</td>
+        </tr>
+        <tr>
+            <td>Video</td>
+            <td>Yes</td>
+            <td><a href="http://man.openbsd.org/inteldrm.4"><code>inteldrm</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Finteldrm.4" title="Archive" class="archive"></a> supports accelerated video, DPMS, gamma control, and integrated backlight control. HDMI output through a USB-C adapter works.</td>
+        </tr>
+        <tr>
+            <td>Webcam</td>
+            <td>Yes</td>
+            <td>Chicony USB, supported by the <a href="http://man.openbsd.org/uvideo.4"><code>uvideo</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fuvideo.4" title="Archive" class="archive"></a> driver when the <code>kern.video.record</code> sysctl is enabled.  Can be disabled in the BIOS.</td>
+        </tr>
+        <tr>
+            <td>Wireless</td>
+            <td>Yes</td>
+            <td>The non-removable Intel AX201 802.11ax wireless chip is supported by <a href="http://man.openbsd.org/iwx.4"><code>iwx</code></a><a href="//web.archive.org/web/20240625000000/http%3A%2F%2Fman.openbsd.org%2Fiwx.4" title="Archive" class="archive"></a>.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Observations</h2>
+
+<ul>
+<li>Observation one.</li>
+<li>Observation two.</li>
+<li>Observation three.</li>
+</ul>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="#">Manual page</a></li>
+<li><a href="#">Source code</a></li>
+<li><a href="#">Related article</a></li>
+</ul>
+
+<hr>
+
+<p>
+That concludes this note. Corrections and improvements are welcome.
+</p>
+
+<div class="footer">
+========================================================================<br>
+Written in Vim.<br>
+Rendered as static HTML.<br>
+Generated on OpenBSD.<br>
+========================================================================
+</div>
+
+<div class="statusline">
+"post-title.html" 142L, 5312B | utf-8 | unix | 100%
+</div>
+
+</body>
+</html>
+
